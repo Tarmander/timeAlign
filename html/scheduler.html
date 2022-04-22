@@ -24,28 +24,28 @@
             <div class="row">
                 <div class="col-md-5">
                     <div class = "card bg-dark text-light">
-                        <div class="card-body text-center">
+                        <div class="card-body text-center d-flex flex-column">
                             <h5>
                                 What times are you free?
                             </h5>
                             <div class="row">
-                            <div class="col-3">
+                            <div class="col-12 col-xxl-3">
                                 <select class="form-select my-3" aria-label="Default select example" id="startTime">
                                     <option selected>Start Time</option>
                                 </select>
                             </div>
-                            <div class="col-3">
+                            <div class="col-12 col-xxl-3">
                                 <select class="form-select my-3" aria-label="Default select example" id="endTime">
                                     <option selected>End Time</option>
                                 </select>
                             </div>
-                            <div class="col-2">
+                            <div class="col-12 col-xxl-2">
                                 <select class="form-select my-3" aria-label="Default select example" id="selectDay">
                                     <option selected>Select Day</option>
                                 </select>
                             </div>
-                            <div class="col-4">
-                                <div class="btn-group p-3 p-2">
+                            <div class="col-12 col-xxl-4">
+                                <div class="btn-group d-flex flex-wrap p-3 p-2">
                                     <button class="btn btn-outline-light" id="addButton" onclick="drawFromRange('add')">Add</button>
                                     <button class="btn btn-outline-light" id="removeButton" onclick="drawFromRange('remove')">Remove</button>
                                     <button class="btn btn-outline-light" id="clearButton"  onclick="clearCalendar()">Clear</button>
