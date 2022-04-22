@@ -5,13 +5,13 @@ var curentlyDrawing = false;
 var currentlyRemoving = false;
 
 const days = [
-    "Sunday",
-    "Monday",
-    "Tuesday",
-    "Wednesday",
-    "Thursday",
-    "Friday",
-    "Saturday"
+    "Sun",
+    "Mon",
+    "Tues",
+    "Wed",
+    "Thurs",
+    "Fri",
+    "Sat"
 ];
 
 const times = [
@@ -55,29 +55,8 @@ function loadCalender() {
                 var colID = times[time] + '-' + day.toString();
                 document.getElementById(times[time]).innerHTML += '<div class="col border bg-white" href="#" id = "' + colID + 
                 '" onmousedown="mouseDown(this.id, event)" onmousemove="mouseMove(this.id, event)" onmouseup="mouseUp(event)"></div>';
-
-                //add event listeners for drawing
-                addIDListeners(colID);
         }
-        
     }
-}
-
-//function creates event listeners for the ID passed to it
-function addIDListeners(id){
-    var ele = document.getElementById(id);
-    
-    ele.addEventListener('click', function drawOnCol(){
-        console.log(ele);
-        if (ele.classList.contains('bg-white')){
-            ele.classList.remove('bg-white');
-            ele.classList.add('bg-primary');
-        }
-        else {
-            ele.classList.remove('bg-primary');
-            ele.classList.add('bg-white');
-        }
-    });
 }
 
 //draws from start time to end time
@@ -104,6 +83,7 @@ function drawFromRange(command){
     }
 }
 
+//resets the calendar 
 function clearCalendar(){
     for (var time = 0; time < NUMHALFHOURS; time++){
         for (var day = 0; day < NUMDAYS; day++) {
@@ -116,6 +96,8 @@ function clearCalendar(){
         }
     }
 }
+
+//mouse has been pressed on a column, check for which action to perform
 function mouseDown(id, ev){
     ev.preventDefault();
     var ele = document.getElementById(id);
@@ -132,6 +114,7 @@ function mouseDown(id, ev){
     mousePressed = true;
 }
 
+//check if the mouse is pressed and entering a new column
 function mouseMove(id, ev){
     ev.preventDefault();
     if (mousePressed == true){
@@ -147,6 +130,7 @@ function mouseMove(id, ev){
     }
 }
 
+//resets the booleans controlling click and move filling
 function mouseUp(ev){
     ev.preventDefault();
     mousePressed = false;
