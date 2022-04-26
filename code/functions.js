@@ -1,9 +1,7 @@
 const NUMDAYS = 7;
 const NUMHALFHOURS = 48;
-var mousePressed = false;
-var curentlyDrawing = false;
-var currentlyRemoving = false;
-
+const ROLLOVERLEN = 26;
+const userOffsetToUTC = (new Date().getTimezoneOffset() / 60) * 2; // Offset from UTC time in half hours
 const days = [
     "Sun",
     "Mon",
@@ -13,7 +11,6 @@ const days = [
     "Fri",
     "Sat"
 ];
-
 const times = [
     "0:00", "0:30", "1:00",
     "1:30", "2:00", "2:30",
@@ -33,11 +30,22 @@ const times = [
     "23:00", "23:30", "24:00"
 ];
 
+var mousePressed = false;
+var curentlyDrawing = false;
+var currentlyRemoving = false;
+
+//create array representation of days and times. 
+var userTimes = Array(NUMDAYS).fill().map(() => Array(NUMHALFHOURS).fill(0)); 
+var userTimesUTC = Array(NUMDAYS).fill().map(() => Array(NUMHALFHOURS).fill(0)); 
+
+
 // Loads the calendar and creates a table of columns with ID = row - col
 function loadCalender() {
     //create first row and day of the week columns
+    console.log( userOffsetToUTC);
     document.getElementById("plannerLoc").innerHTML = '<div class="row justify-content-center" styele="height:50px" id="days"></div>';
     document.getElementById("days").innerHTML += '<div class="col-1"></div>';
+
     for (var day = 0; day < NUMDAYS; day++) {
         document.getElementById("days").innerHTML += '<div class="col">' + days[day] + '</div>';
         document.getElementById("selectDay").innerHTML += '<option value="' + days[day] + '">' + days[day] + '</option>';
@@ -45,11 +53,11 @@ function loadCalender() {
 
     //loop and create rows + first column for the time display
     for (var time = 0; time < NUMHALFHOURS; time++) {
-
         document.getElementById("plannerLoc").innerHTML += '<div class="row " style="height:25px" id="' + times[time] + '"></div>';
         document.getElementById(times[time]).innerHTML += '<div class="col-1">' + times[time] + '</div>';
         document.getElementById("startTime").innerHTML += '<option value="' + times[time] + '">' + times[time] + '</option>';
         document.getElementById("endTime").innerHTML += '<option value="' + times[time] + '">' + times[time] + '</option>';
+
         //create empty columns for coloring the calendar
         for (var day = 0; day < NUMDAYS; day++) {
                 var colID = times[time] + '-' + day.toString();
@@ -67,31 +75,37 @@ function drawFromRange(command){
     var dayIndex = days.indexOf(document.getElementById("selectDay").value);
 
     //loop from start to finish and draw according to the input command
-    for (var time = startIndex; time <= endIndex; time++){
-        var colID = times[time] + '-' + dayIndex.toString();
+    for (var timeIndex = startIndex; timeIndex <= endIndex; timeIndex++){
+        var colID = times[timeIndex] + '-' + dayIndex.toString();
         var colElement = document.getElementById(colID);
+
         if (command == 'add' && colElement.classList.contains('bg-white')){
             colElement.classList.remove('bg-white');
             colElement.classList.add('bg-primary');
+            userTimes[dayIndex][timeIndex] = 1;
         }
 
         else if (command == 'remove' && colElement.classList.contains('bg-primary')){
             colElement.classList.remove('bg-primary');
             colElement.classList.add('bg-white');
+            userTimes[dayIndex][timeIndex] = 0;
         }
-
     }
+    convertLocalTimesToUTC();
 }
 
 //resets the calendar 
 function clearCalendar(){
-    for (var time = 0; time < NUMHALFHOURS; time++){
-        for (var day = 0; day < NUMDAYS; day++) {
-            var colID = times[time] + '-' + day.toString();
+    for (var dayIndex = 0; dayIndex < NUMDAYS; dayIndex++) {
+
+        for (var timeIndex = 0; timeIndex < NUMHALFHOURS; timeIndex++){
+            var colID = times[timeIndex] + '-' + dayIndex.toString();
             var colElement = document.getElementById(colID);
+
             if (colElement.classList.contains('bg-primary')){
                 colElement.classList.remove('bg-primary');
                 colElement.classList.add('bg-white');
+                userTimes[dayIndex][timeIndex] = 0;
             }
         }
     }
@@ -100,16 +114,23 @@ function clearCalendar(){
 //mouse has been pressed on a column, check for which action to perform
 function mouseDown(id, ev){
     ev.preventDefault();
+    var [timeString, dayString] = id.split('-')
+    timeIndex = times.indexOf(timeString)
+    dayIndex = parseInt(dayString);
     var ele = document.getElementById(id);
+
     if (ele.classList.contains('bg-white')){
         ele.classList.remove('bg-white');
         ele.classList.add('bg-primary');
         currentlyDrawing = true;
+        userTimes[dayIndex][timeIndex] = 1;
     }
+
     else {
         ele.classList.remove('bg-primary');
         ele.classList.add('bg-white');
         currentlyRemoving = true;
+        userTimes[dayIndex][timeIndex] = 0;
     }
     mousePressed = true;
 }
@@ -117,15 +138,22 @@ function mouseDown(id, ev){
 //check if the mouse is pressed and entering a new column
 function mouseMove(id, ev){
     ev.preventDefault();
+    var [timeString, dayString] = id.split('-')
+    timeIndex = times.indexOf(timeString)
+    dayIndex = parseInt(dayString);
+
     if (mousePressed == true){
         var ele = document.getElementById(id);
+
         if (ele.classList.contains('bg-white') && currentlyDrawing){
             ele.classList.remove('bg-white');
             ele.classList.add('bg-primary');
+            userTimes[dayIndex][timeIndex] = 1;
         }
         else if (currentlyRemoving) {
             ele.classList.remove('bg-primary');
             ele.classList.add('bg-white');
+            userTimes[dayIndex][timeIndex] = 0;
         }
     }
 }
@@ -133,8 +161,41 @@ function mouseMove(id, ev){
 //resets the booleans controlling click and move filling
 function mouseUp(ev){
     ev.preventDefault();
-    mousePressed = false;
+
+    if (mousePressed){
+        mousePressed = false;
+        console.log(userTimes);
+        convertLocalTimesToUTC();
+    }
     currentlyDrawing = false;
-    currentlyRemoving = false;
-    console.log(mousePressed);
+}
+
+//moves indices from local to UTC, handles rollovers
+function convertLocalTimesToUTC(){
+    //Maximum time difference possible is 26 hours, so max rollver of 26
+    var rolloverArray = Array(ROLLOVERLEN).fill(0); 
+
+    for (var dayIndex = 0; dayIndex < NUMDAYS; dayIndex++){
+        userTimesUTC[dayIndex].splice(0, 1, rolloverArray);
+        rolloverArray.fill(0);
+
+        for (var timeIndex = 0; timeIndex < NUMHALFHOURS; timeIndex++){
+
+            if (userTimes[dayIndex][timeIndex] == 1){
+                offSetIndex = userOffsetToUTC + timeIndex;
+
+                //check for rollover
+                if (offSetIndex >= NUMHALFHOURS){
+                    offSetIndex -= NUMHALFHOURS;
+                    rolloverArray[offSetIndex] = 1
+                }
+                else{
+                    userTimesUTC[dayIndex][offSetIndex] = 1
+                }
+            }
+        }
+    }
+
+    //Sunday rollover left over
+    userTimesUTC[0].splice(0, 1, rolloverArray);
 }
