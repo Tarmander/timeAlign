@@ -1,7 +1,6 @@
 const NUMDAYS = 7;
 const NUMHALFHOURS = 48;
 const ROLLOVERLEN = 26;
-const userOffsetToUTC = (new Date().getTimezoneOffset() / 60) * 2; // Offset from UTC time in half hours
 const days = [
     "Sun",
     "Mon",
@@ -30,13 +29,13 @@ const times = [
     "23:00", "23:30", "24:00"
 ];
 
+
 var mousePressed = false;
 var curentlyDrawing = false;
 var currentlyRemoving = false;
 
 //create array representation of days and times. 
 var userTimes = Array(NUMDAYS).fill().map(() => Array(NUMHALFHOURS).fill(0)); 
-var userTimesUTC = Array(NUMDAYS).fill().map(() => Array(NUMHALFHOURS).fill(0)); 
 
 // Loads the calendar and creates a table of columns with ID = row - col
 function loadCalender() {
@@ -63,6 +62,10 @@ function loadCalender() {
                 '" onmousedown="mouseDown(this.id, event)" onmousemove="mouseMove(this.id, event)" onmouseup="mouseUp(event)"></div>';
         }
     }
+    var urlDisplay = document.getElementById('urlDisplay');
+    urlDisplay.setAttribute('value', window.location.href);
+    urlDisplay.select();
+
 }
 
 //draws from start time to end time
@@ -89,7 +92,7 @@ function drawFromRange(command){
             userTimes[dayIndex][timeIndex] = 0;
         }
     }
-    sendTimesToServer();
+    sendTimesToServer(userTimes);
 }
 
 //resets the calendar 
@@ -106,7 +109,7 @@ function clearCalendar(){
             }
         }
     }
-    sendTimesToServer()
+    sendTimesToServer(userTimes);
 }
 
 //mouse has been pressed on a column, check for which action to perform
@@ -162,65 +165,9 @@ function mouseUp(ev){
 
     if (mousePressed){
         mousePressed = false;
-        sendTimesToServer()
-
+        sendTimesToServer(userTimes);
     }
     currentlyDrawing = false;
 }
 
-//moves indices from local to UTC, handles rollovers
-function convertLocalTimesToUTC(){
-    //Maximum time difference possible is 26 hours, so max rollver of 26
-    var rolloverArray = Array(ROLLOVERLEN).fill(0); 
-    
-    for (var dayIndex = 0; dayIndex < NUMDAYS; dayIndex++){
-        userTimesUTC[dayIndex].splice(0, 1, rolloverArray);
-        rolloverArray.fill(0);
 
-        for (var timeIndex = 0; timeIndex < NUMHALFHOURS; timeIndex++){
-
-            var offSetIndex = userOffsetToUTC + timeIndex;
-            var value = userTimes[dayIndex][timeIndex];
-
-            //check for rollover
-            if (offSetIndex >= NUMHALFHOURS){
-                offSetIndex -= NUMHALFHOURS;
-                rolloverArray[offSetIndex] = value
-            }
-            else{
-                userTimesUTC[dayIndex][offSetIndex] = value
-            }
-        }
-    }
-
-    //Sunday rollover left over
-    userTimesUTC[0].splice(0, 1, rolloverArray);
-}
-
-function  convertTimesToInt(){
-    var result = []
-    for (var dayIndex = 0; dayIndex < NUMDAYS; dayIndex++) {
-        var newNum = userTimesUTC[dayIndex][0];
-
-        for (var timeIndex = 1; timeIndex < NUMHALFHOURS; timeIndex++){
-            newNum = (newNum << 1) || userTimesUTC[dayIndex][timeIndex];
-        }
-        result.push(newNum)
-    }
-
-    return result;
-}
-
-function sendTimesToServer(){
-    convertLocalTimesToUTC();
-    const data = convertTimesToInt();
-    const options = {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-        },
-        body: JSON.stringify(data),
-    }
-    console.log(data);
-    fetch('http://localhost:3000/api', options);
-}
