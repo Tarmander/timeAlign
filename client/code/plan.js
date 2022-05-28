@@ -1,6 +1,3 @@
-const NUMDAYS = 7;
-const NUMHALFHOURS = 48;
-const ROLLOVERLEN = 26;
 const days = [
     "Sun",
     "Mon",
@@ -34,9 +31,6 @@ var mousePressed = false;
 var curentlyDrawing = false;
 var currentlyRemoving = false;
 
-//create array representation of days and times. 
-var userTimes = Array(NUMDAYS).fill().map(() => Array(NUMHALFHOURS).fill(0)); 
-
 // Loads the calendar and creates a table of columns with ID = row - col
 function loadCalender() {
     //create first row and day of the week columns
@@ -62,6 +56,7 @@ function loadCalender() {
                 '" onmousedown="mouseDown(this.id, event)" onmousemove="mouseMove(this.id, event)" onmouseup="mouseUp(event)"></div>';
         }
     }
+    //display group url and highlight
     var urlDisplay = document.getElementById('urlDisplay');
     urlDisplay.setAttribute('value', window.location.href);
     urlDisplay.select();
@@ -92,7 +87,6 @@ function drawFromRange(command){
             userTimes[dayIndex][timeIndex] = 0;
         }
     }
-    sendTimesToServer(userTimes);
 }
 
 //resets the calendar 
@@ -109,7 +103,6 @@ function clearCalendar(){
             }
         }
     }
-    sendTimesToServer(userTimes);
 }
 
 //mouse has been pressed on a column, check for which action to perform
@@ -165,7 +158,6 @@ function mouseUp(ev){
 
     if (mousePressed){
         mousePressed = false;
-        sendTimesToServer(userTimes);
     }
     currentlyDrawing = false;
 }

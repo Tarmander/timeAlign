@@ -12,7 +12,7 @@ const userTimesSchema = new Schema({
         required: true
     },
 
-    times: {
+    data: {
         type: [],
         required: true
 
@@ -24,5 +24,6 @@ const userTimesSchema = new Schema({
     }
 });
 
-const Times = mongoose.model('Times', userTimesSchema);
+//userTimesSchema.index({groupdID: 1, userID: 1}, { unique: true})
+const Times = mongoose.model('times', userTimesSchema);
 module.exports = Times;
