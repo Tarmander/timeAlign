@@ -1,39 +1,63 @@
 const express = require('express');
+const { Server } = require("socket.io");
+const http = require('http');
 const db = require('./db.js')
 const app = express();
+const server = http.createServer(app);
+const io = new Server(server);
+
+
 const port = 3000;
 
 app.use(express.static('client'));
 app.use(express.json());
 
-app.listen(port, () => {
-  console.log(`Zonelink listening on port ${port}`)
-  db.connectToDB();
+app.post('/retrieve', async (req, res) => {
+    try{
+        const data = await db.grabGroupInfo(req.body);
+        data.unshift( {'overlap' : db.getOverlap(data)});
+        res.send(data);
+    }
+    catch(err){
+        console.log(err);
+    }
 });
 
-app.post('/retrieve', async (req, res) => {
-  const data = await db.grabGroupInfo(req.body);
-  overlapTimes = getOverlap(data);
-  res.send(overlapTimes);
+//basic websocket handler for dynamic information
+io.on('connection', (socket) => {
+    socket.on("hello", async (arg) => {
+        console.log("joined:" + arg);
+        socket.join(arg);
+        try {
+            const data = await db.grabGroupInfo(arg);
+            data.unshift( {'overlap' : db.getOverlap(data)});
+            io.to(arg).emit("times", data);
+        }
+
+        catch(err){
+            console.log(err);
+        }
+    });
+  
+    socket.on("times", async (args) => {
+        try {
+            await db.save(args);
+            const data = await db.grabGroupInfo(args.groupID);
+            data.unshift( {'overlap' : db.getOverlap(data)});
+            io.to(args.groupID).emit("times", data);
+            }
+        catch(err){
+            console.log(err);
+        }
+    });
 });
 
 app.post('/update', async (req, res) => {
-  console.log(req.body.data, 'Received Body');
-  db.save(req.body);
+    console.log('Received Body');
+    db.save(req.body);
 });
 
-
-//takes 2D array of "data" mappings and bitwise and the values into a single 1D array of times
-function getOverlap(dataArray){
-  if (dataArray.length == 0){
-      throw "No data";
-  }
-  var result = dataArray[0];
-  for (var user = 1; user < dataArray.length; user++){
-      for (var index = 0; index < NUMDAYS; index++){
-          result[index] = result[index] & dataArray[user][index];
-      }
-  }
-
-  return result;
-}
+server.listen(port, () => {
+    console.log(`Zonelink listening on port ${port}`)
+    db.connectToDB();
+});

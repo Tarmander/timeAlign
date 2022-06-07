@@ -10,42 +10,50 @@ function connectToDB(){
     db.once('open', () => console.log('Connected to Database'))
 }
 
-//
+//saves the POSTed data into the mongodb document associated with the group
 async function save(userObject){
-    const filter = {groupID: userObject.groupID, userID: userObject.userID}
-    Times.findOne(filter, function(err, times){
-        if(!err) {
-            if(!times) {
-                times = new Times({
-                    groupID: userObject.groupID,
-                    userID: userObject.userID,
-                    data: userObject.data,
-                    name: userObject.name
-                })
-            }
-            times.times = userObject.data;
-            times.save(function(err){
-                if(!err) {
-                    console.log("Data stored");
-                }
-                else {
-                    console.log("Data store failed");
-                }
-            });
-        }
-    });
+    const filter = {groupID: userObject.groupID, userID: userObject.userID};
+    console.log(userObject);
+    times = await Times.findOne(filter).exec();
+    if(!times) {
+        times = new Times({
+        groupID: userObject.groupID,
+        userID: userObject.userID,
+        data: userObject.data,
+        name: userObject.name
+        });
+    }
+    times.data = userObject.data;
+    times.name = userObject.name;
+    return times.save();
 }
 
-async function grabGroupInformation(userObject){
-    filter = {groupID: userObject.groupID};
-    data = [];
-    const results = await Times.find(filter, 'data name -_id');
-    results.map(result => data.push(result.data));
-    return data;
+async function grabGroupInfo(id){
+    filter = {groupID: id};
+    const results = await Times.find(filter);
+    return results;
+}
+
+//takes JSON representation of user's times and returns overlapping times in 2D array
+//TODO: optimize this abomination
+function getOverlap(userInfo){
+    if (userInfo.length == 0){
+        throw "No data";
+    }
+    var result = userInfo[0].data;
+    for (var user = 1; user < userInfo.length; user++){
+        for (var dayIndex = 0; dayIndex < 7; dayIndex++){
+            for (var timeIndex = 0; timeIndex < 48; timeIndex++){
+                result[dayIndex][timeIndex] &= userInfo[user].data[dayIndex][timeIndex];
+            }
+        }
+    }
+    return result;
 }
 
 module.exports.connectToDB = connectToDB;
 module.exports.save = save;
-module.exports.grabGroupInfo = grabGroupInformation;
+module.exports.grabGroupInfo = grabGroupInfo;
+module.exports.getOverlap = getOverlap;
 
 

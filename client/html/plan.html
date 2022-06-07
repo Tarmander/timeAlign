@@ -8,10 +8,11 @@
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
         <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/date-fns/1.30.1/date_fns.min.js" integrity="sha512-F+u8eWHrfY8Xw9BLzZ8rG/0wIvs0y+JyRJrXjp3VjtFPylAEEGwKbua5Ip/oiVhaTDaDs4eU2Xtsxjs/9ag2bQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+        <script src="https://cdn.socket.io/4.5.0/socket.io.min.js" integrity="sha384-7EyYLQZgWBi67fBtVxw60/OWl1kjsfrPFcaU0pp0nAh+i8FD068QogUvg85Ewy1k" crossorigin="anonymous"></script>
         <script type="text/javascript" type="module" src="../code/system.js"></script>
         <script type="text/javascript" type="module" src="../code/plan.js"></script>
     </head>
-    <body onload="loadCalender()">
+    <body onload="loadPlan()">
     <nav class="navbar navbar-expand-sm bg-dark navbar-dark">
         <div class="container-fluid">
             <a class="navbar-brand" href="../index.html">ZoneLink</a>
@@ -21,15 +22,20 @@
             </div>
         </div>
     </nav>
-    <section class="bg-white p-5">
+    <section class="bg-white text-dark p-5 text-center">
         <div class="container-fluid">
+            <h2>Enter your times</h2>
             <div class="row">
                 <div class="col-md-5">
                     <div class = "card bg-dark text-light">
                         <div class="card-body text-center d-flex flex-column">
-                            <h5>
-                                What times are you free?
-                            </h5>
+                            <div style="display:flex; justify-content: center;">
+                                <h5>Please enter your name:</h5>
+                                <div class="input-group w-25 mx-3 center-text">
+                                    <input type="text" class="form-control" id="name" placeholder="John Smith">
+                                </div>
+                            </div>
+                            <h5>What times are you free?</h5>
                             <div class="row">
                             <div class="col-12 col-xxl-3">
                                 <select class="form-select my-3" aria-label="Default select example" id="startTime">
@@ -66,6 +72,22 @@
             </div>
                 <div class="col-md-7" style="overflow-y:scroll; height:600px;" onmouseleave="mouseUp(event)">
                     <div class="overflow-y:scroll" id="plannerLoc"></div>
+                </div>
+            </div>
+            </div>
+        </div>
+    </section>
+    <section class="bg-dark text-light p-5 text-center">
+        <div class="container-fluid">
+            <h2 id="groupTitle">Group Availability</h2>
+            <div class="row justify-content-center">
+                <div class="col-md-1">
+                    <div class="btn-group-vertical" id="userSelector">
+                        <button class="btn btn-primary" onclick="drawGroupMember('overlap')">Group Info</button>
+                    </div>
+                </div>
+                <div class="col-md-7" style="overflow-y:scroll; height:600px;">
+                    <div class="overflow-y:scroll" id="groupInfo"></div>
                 </div>
             </div>
         </div>
