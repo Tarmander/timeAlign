@@ -12,17 +12,6 @@ const port = 3000;
 app.use(express.static('client'));
 app.use(express.json());
 
-app.post('/retrieve', async (req, res) => {
-    try{
-        const data = await db.grabGroupInfo(req.body);
-        data.unshift( {'overlap' : db.getOverlap(data)});
-        res.send(data);
-    }
-    catch(err){
-        console.log(err);
-    }
-});
-
 //basic websocket handler for dynamic information
 io.on('connection', (socket) => {
     socket.on("hello", async (arg) => {
@@ -50,11 +39,6 @@ io.on('connection', (socket) => {
             console.log(err);
         }
     });
-});
-
-app.post('/update', async (req, res) => {
-    console.log('Received Body');
-    db.save(req.body);
 });
 
 server.listen(port, () => {

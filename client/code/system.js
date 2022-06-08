@@ -3,6 +3,7 @@ const NUMHALFHOURS = 48;
 const groupID = grabIDFromURL();
 const userID = getUserID();
 const userOffsetToUTC = (new Date().getTimezoneOffset() / 60) * 2; // Offset from UTC time in half hours
+
 //create array representation of days and times. 
 var userTimes = Array(NUMDAYS).fill().map(() => Array(NUMHALFHOURS).fill(0)); 
 var overlapTimes = Array(NUMDAYS).fill().map(() => Array(NUMHALFHOURS).fill(0)); 
@@ -35,15 +36,12 @@ function grabIDFromURL()
 
 //grabs user ID from a cookie or creates a new one if it doesn't exist
 function getUserID(){
-    var id = _getCookie("userID");
-    if (id != ""){
-        return id;
-    }
-    else {
+    var id = localStorage.getItem(groupID);
+    if (!id){
         id = _generateUserID();
-        _setCookie("userID", id, 365);
-        return id;
+        localStorage.setItem(groupID, id);
     }
+    return id;
 }
 
 //moves indices from local to UTC, handles rollovers
@@ -118,28 +116,4 @@ function storeReceivedInfo(inputData){
 function _generateUserID()
 {
     return (Math.floor(Math.random() * 100)).toString();
-}
-
-//creates a cookie
-function _setCookie(cname, cvalue, exdays) {
-    const d = new Date();
-    d.setTime(d.getTime() + (exdays * 24 * 60 * 60 * 1000));
-    let expires = "expires="+d.toUTCString();
-    document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/";
-}
-
-//retrieves the cookie
-function _getCookie(cname) {
-    let name = cname + "=";
-    let ca = document.cookie.split(';');
-    for(let i = 0; i < ca.length; i++) {
-      let c = ca[i];
-      while (c.charAt(0) == ' ') {
-        c = c.substring(1);
-      }
-      if (c.indexOf(name) == 0) {
-        return c.substring(name.length, c.length);
-      }
-    }
-    return "";
 }

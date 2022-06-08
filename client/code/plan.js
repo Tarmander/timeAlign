@@ -27,6 +27,10 @@ const timesAsString = [
 ];
 const socket = io("http://localhost:3000");
 
+var prevBtnId = 'overlap'
+var mousePressed = false;
+var curentlyDrawing = false;
+var currentlyRemoving = false;
 //initial connection message to grab group times
 socket.emit("hello", groupID);
 
@@ -34,12 +38,8 @@ socket.emit("hello", groupID);
 socket.on("times", (data) => {
     storeReceivedInfo(data);
     drawGroupButtons();
+    drawGroupMember(prevBtnId)
 });
-
-var mousePressed = false;
-var curentlyDrawing = false;
-var currentlyRemoving = false;
-var prevBtnId = 'overlap'
 
 function loadPlan(){
     loadUserPlanner();
@@ -180,7 +180,9 @@ function clearCalendar(group=false){
             if (colElement.classList.contains('bg-primary')){
                 colElement.classList.remove('bg-primary');
                 colElement.classList.add('bg-white');
-                userTimes[dayIndex][timeIndex] = 0;
+                if (!group){
+                    userTimes[dayIndex][timeIndex] = 0;
+                }
             }
         }
     }
@@ -245,7 +247,6 @@ function mouseUp(ev){
 
 //submits current times to the server and grabs group overlap
 function submit(){
-    //sendTimesToServer(userTimes);
     const data = {"groupID": groupID, "userID": userID, "data": convertLocalTimesToUTC(userTimes, userOffsetToUTC), "name": document.getElementById('name').value};
     socket.emit("times", data);
 }
