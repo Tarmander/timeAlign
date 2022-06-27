@@ -1,4 +1,4 @@
-# zoneLink
+# TimeAlign
 ## Dependecies:
 - npm
 - dotenv

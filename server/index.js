@@ -7,7 +7,7 @@ const server = http.createServer(app);
 const io = new Server(server);
 
 
-const port = 3000;
+const port = process.env.PORT || 3000;
 
 app.use(express.static('client'));
 app.use(express.json());
@@ -42,6 +42,6 @@ io.on('connection', (socket) => {
 });
 
 server.listen(port, () => {
-    console.log(`Zonelink listening on port ${port}`)
+    console.log(`TimeAlign listening on port ${port}`)
     db.connectToDB();
 });
