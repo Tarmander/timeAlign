@@ -1,5 +1,5 @@
 # TimeAlign
-## Dependecies:
+## Dependencies:
 - npm
 - dotenv
 - express
