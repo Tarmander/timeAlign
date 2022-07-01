@@ -1,0 +1,6 @@
+{
+    "name": "root",
+    "scripts": {
+        "start": "node server/index.js"
+    }
+}
