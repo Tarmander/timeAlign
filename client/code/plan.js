@@ -26,6 +26,7 @@ const timesAsString = [
     "23:00", "23:30", "24:00"
 ];
 
+//TODO make this not ugly af
 const socketURL = window.location.hostname
 const port = 
     window.location.port != ''

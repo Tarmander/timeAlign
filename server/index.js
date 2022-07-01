@@ -21,8 +21,9 @@ io.on('connection', (socket) => {
         socket.join(arg);
         try {
             const data = await db.grabGroupInfo(arg);
-            data.unshift( {'overlap' : db.getOverlap(data)});
-            io.to(arg).emit("times", data);
+            const overlap = db.getOverlap(data);
+            body = {'overlap' : overlap, 'users' : data}
+            io.to(arg).emit("times", body);
         }
 
         catch(err){
@@ -34,8 +35,10 @@ io.on('connection', (socket) => {
         try {
             await db.save(args);
             const data = await db.grabGroupInfo(args.groupID);
-            data.unshift( {'overlap' : db.getOverlap(data)});
-            io.to(args.groupID).emit("times", data);
+            const overlap = db.getOverlap(data);
+            body = {'overlap' : overlap, 'users' : data}
+            console.log(body.users[0]);
+            io.to(args.groupID).emit("times", body);
             }
         catch(err){
             console.log(err);

@@ -13,7 +13,6 @@ function connectToDB(){
 //saves the POSTed data into the mongodb document associated with the group
 async function save(userObject){
     const filter = {groupID: userObject.groupID, userID: userObject.userID};
-    console.log(userObject);
     times = await Times.findOne(filter).exec();
     if(!times) {
         times = new Times({
@@ -40,11 +39,11 @@ function getOverlap(userInfo){
     if (userInfo.length == 0){
         throw "No data";
     }
-    var result = userInfo[0].data;
-    for (var user = 1; user < userInfo.length; user++){
-        for (var dayIndex = 0; dayIndex < 7; dayIndex++){
-            for (var timeIndex = 0; timeIndex < 48; timeIndex++){
-                result[dayIndex][timeIndex] &= userInfo[user].data[dayIndex][timeIndex];
+    var result = Array(7).fill().map(() => Array(48).fill(1)); 
+    for (var user = 0; user < userInfo.length; user++){
+        for (var dayIdx = 0; dayIdx < 7; dayIdx++){
+            for (var timeIdx = 0; timeIdx < 48; timeIdx++){
+                result[dayIdx][timeIdx] &= userInfo[user].data[dayIdx][timeIdx];
             }
         }
     }

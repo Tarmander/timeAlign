@@ -104,11 +104,11 @@ function convertLocalTimesToUTC(times, offset){
 
 //stores received group data after converting it back to local time
 function storeReceivedInfo(inputData){
+    console.log(inputData)
     receivedDBInfo.clear();
-    console.log(receivedDBInfo);
-    overlapTimes = convertLocalTimesToUTC(inputData[0].overlap, -(userOffsetToUTC));
-    for (var userIndex = 1; userIndex < inputData.length; userIndex++){
-        receivedDBInfo.set(inputData[userIndex].name, convertLocalTimesToUTC(inputData[userIndex].data, -(userOffsetToUTC)));
+    overlapTimes = convertLocalTimesToUTC(inputData.overlap, -(userOffsetToUTC));
+    for (var userIdx = 0; userIdx < inputData.users.length; userIdx++){
+        receivedDBInfo.set(inputData.users[userIdx].name, convertLocalTimesToUTC(inputData.users[userIdx].data, -(userOffsetToUTC)));
     }
 }
 
