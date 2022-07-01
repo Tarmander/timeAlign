@@ -1,6 +1,7 @@
 {
     "name": "root",
     "scripts": {
-        "start": "node server/index.js"
+        "start": "cd server && node index.js",
+        "build": "cd server && npm install"
     }
 }
