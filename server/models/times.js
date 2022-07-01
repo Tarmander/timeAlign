@@ -24,6 +24,5 @@ const userTimesSchema = new Schema({
     }
 });
 
-//userTimesSchema.index({groupdID: 1, userID: 1}, { unique: true})
 const Times = mongoose.model('times', userTimesSchema);
 module.exports = Times;

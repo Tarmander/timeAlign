@@ -57,7 +57,7 @@ function loadUserPlanner() {
     document.getElementById("days").innerHTML += '<div class="col-1"></div>';
 
     for (var dayIndex = 0; dayIndex < NUMDAYS; dayIndex++) {
-        document.getElementById("days").innerHTML += '<div class="col">' + daysAsString[dayIndex] + '</div>';
+        document.getElementById("days").innerHTML += '<div class="col">' + daysAsString[dayIndex][0] + '</div>';
         document.getElementById("selectDay").innerHTML += '<option value="' + daysAsString[dayIndex] + '">' + daysAsString[dayIndex] + '</option>';
     }
 
@@ -84,7 +84,7 @@ function loadGroupPlanner(){
     document.getElementById("groupDays").innerHTML += '<div class="col-1"></div>';
 
     for (var dayIndex = 0; dayIndex < NUMDAYS; dayIndex++) {
-        document.getElementById("groupDays").innerHTML += '<div class="col">' + daysAsString[dayIndex] + '</div>';
+        document.getElementById("groupDays").innerHTML += '<div class="col">' + daysAsString[dayIndex][0] + '</div>';
     }
 
     //loop and create rows + first column for the time display

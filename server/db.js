@@ -1,5 +1,5 @@
 //load environment variables
-require('dotenv').config();
+require('dotenv').config({path: require('find-config')('.env')});
 const mongoose = require('mongoose');
 const CONNECTION_URL = process.env.DB_URL;
 const Times = require('./models/times');
