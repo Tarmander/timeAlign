@@ -1,3 +1,4 @@
+const application_root = __dirname + '/../'
 const express = require('express');
 const { Server } = require("socket.io");
 const http = require('http');
@@ -9,8 +10,9 @@ const io = new Server(server);
 
 const port = process.env.PORT || 3000;
 
-app.use(express.static('client'));
+app.use(express.static('../client'));
 app.use(express.json());
+
 
 //basic websocket handler for dynamic information
 io.on('connection', (socket) => {

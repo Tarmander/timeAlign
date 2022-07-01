@@ -31,26 +31,38 @@
                         <div class="card-body text-center d-flex flex-column">
                             <div style="display:flex; justify-content: center;">
                                 <h5>Please enter your name:</h5>
-                                <div class="input-group w-25 mx-3 center-text">
+                                <div class="input-group has-validation w-25 mx-3 center-text">
                                     <input type="text" class="form-control" id="name" placeholder="John Smith">
+                                    <div class="invalid-feedback">
+                                        Please enter a name.
+                                    </div>
                                 </div>
                             </div>
                             <h5>What times are you free?</h5>
                             <div class="row">
                             <div class="col-12 col-xxl-3">
-                                <select class="form-select my-3" aria-label="Default select example" id="startTime">
+                                <select class="form-select has-validation my-3" aria-label="Default select example" id="startTime">
                                     <option selected>Start Time</option>
                                 </select>
+                                <div class="invalid-feedback">
+                                    Invalid start time.
+                                </div>
                             </div>
                             <div class="col-12 col-xxl-3">
-                                <select class="form-select my-3" aria-label="Default select example" id="endTime">
+                                <select class="form-select has-validation my-3" aria-label="Default select example" id="endTime">
                                     <option selected>End Time</option>
                                 </select>
+                                <div class="invalid-feedback">
+                                    Invalid end time.
+                                </div>
                             </div>
                             <div class="col-12 col-xxl-2">
-                                <select class="form-select my-3" aria-label="Default select example" id="selectDay">
+                                <select class="form-select has-validation my-3" aria-label="Default select example" id="selectDay">
                                     <option selected>Select Day</option>
                                 </select>
+                                <div class="invalid-feedback">
+                                    Please select a day.
+                                </div>
                             </div>
                             <div class="col-12 col-xxl-4">
                                 <div class="btn-group d-flex flex-wrap p-3 p-2">
