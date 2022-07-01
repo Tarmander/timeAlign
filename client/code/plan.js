@@ -25,7 +25,13 @@ const timesAsString = [
     "21:30", "22:00", "22:30",
     "23:00", "23:30", "24:00"
 ];
-const socket = io("http://localhost:3000");
+
+const socketURL = window.location.hostname
+const port = 
+    window.location.port != ''
+    ? ':'+ window.location.port 
+    : ''
+const socket = io(socketURL + port);
 
 var prevBtnId = 'overlap'
 var mousePressed = false;
