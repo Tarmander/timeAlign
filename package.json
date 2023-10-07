@@ -1,7 +1,0 @@
-{
-    "name": "root",
-    "scripts": {
-        "start": "cd server && node index.js",
-        "build": "cd server && npm install"
-    }
-}
