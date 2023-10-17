@@ -18,8 +18,9 @@ type UserController struct {
 
 func (uc *UserController) RegisterEndpoints(r *gin.Engine) {
 	r.GET("/users/:userid", uc.getUser)
-	r.POST("/users", uc.addUser)
 	r.GET("/users/:userid/calendars", uc.getUserCalendars)
+	r.POST("/users", uc.addUser)
+	r.DELETE("/user/:useruid", uc.deleteUser)
 }
 
 func (uc *UserController) getUser(c *gin.Context) {
@@ -31,9 +32,7 @@ func (uc *UserController) getUser(c *gin.Context) {
 	}
 
 	var user models.User
-	query := `select id, username, email, first_name, last_name 
-	from users 
-	where id=$1`
+	query := `select * from get_user($1)`
 	err = uc.Db.QueryRow(context.Background(), query, id).Scan(&user.Id, &user.Username, &user.Email, &user.First, &user.Last)
 
 	if err != nil {
@@ -42,7 +41,7 @@ func (uc *UserController) getUser(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, user)
+	c.IndentedJSON(http.StatusOK, user)
 }
 
 func (uc *UserController) addUser(c *gin.Context) {
@@ -55,8 +54,7 @@ func (uc *UserController) addUser(c *gin.Context) {
 		return
 	}
 
-	query := `insert into users(username, pass, email, first_name, last_name)
-	values ($1, $2, $3, $4, $5)`
+	query := `select from add_user($1, $2, $3, $4)`
 
 	_, err = uc.Db.Exec(context.Background(), query, newUser.Username, newUser.Email, newUser.First, newUser.Last)
 	if err != nil {
@@ -74,14 +72,7 @@ func (uc *UserController) getUserCalendars(c *gin.Context) {
 		return
 	}
 
-	query := `select id, name, admin_id from calendars 
-	where id in (
-		select distinct c.id
-	from calendars as c
-	join schedules as s on c.id = s.calendarid
-	join users as u on u.id = s.user_id
-	where u.id = $1
-	)`
+	query := `select * from get_user_calendars($1)`
 	rows, err := uc.Db.Query(context.Background(), query, id)
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"Error": "User ID doesn't exist"})
@@ -91,12 +82,31 @@ func (uc *UserController) getUserCalendars(c *gin.Context) {
 	var calendars []models.Calendar
 	for rows.Next() {
 		var calendar models.Calendar
-		err := rows.Scan(&calendar.Id, &calendar.Name, &calendar.Admin)
+		err := rows.Scan(&calendar.Id, &calendar.Title, &calendar.Admin)
 		if err != nil {
 			log.Printf("Bad row in get user calendars query")
 		}
+
 		calendars = append(calendars, calendar)
 	}
 
-	c.JSON(http.StatusOK, calendars)
+	c.IndentedJSON(http.StatusOK, calendars)
+}
+
+func (uc *UserController) deleteUser(c *gin.Context) {
+	id, err := strconv.Atoi(c.Param("userid"))
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"Error": "Invalid user id"})
+		return
+	}
+
+	query := `select from delete_user($1)`
+
+	_, err = uc.Db.Exec(context.Background(), query, id)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"Error": err})
+		return
+	}
+
+	c.Status(http.StatusOK)
 }

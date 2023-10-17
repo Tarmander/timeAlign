@@ -1,7 +1,12 @@
 package models
 
 type Calendar struct {
-	Id    int    `json:"id"`
-	Name  string `json:"name"`
-	Admin int    `json:"admin"`
+	Id        int              `json:"id"`
+	Title     string           `json:"title"`
+	Admin     int              `json:"admin,omitempty"`
+	Setttings CalendarSettings `json:"settings"`
+	Schedules []Schedule       `json:"schedules"`
+}
+
+type CalendarSettings struct {
 }
